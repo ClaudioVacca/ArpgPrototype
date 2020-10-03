@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour
 {
@@ -54,27 +55,6 @@ public class PlayerController : MonoBehaviour
     private int heavtAttackCounter = 0;
     private bool firstComboAttack = true;
 
-    [Header("TacticPause")]
-    private bool tacticPause;
-    private bool _isTacticPauseActive;
-
-    public bool IsTacticPauseActive
-    {
-        get { return _isTacticPauseActive; }
-        set
-        {
-            _isTacticPauseActive = value;
-            if (value)
-            {
-                Time.timeScale = 0.5f;
-            }
-            else
-            {
-                Time.timeScale = 1f;
-            }
-        }
-    }
-
 
     void Start()
     {
@@ -99,9 +79,11 @@ public class PlayerController : MonoBehaviour
         running = Input.GetKey(KeyCode.LeftShift) ? true : false;
         crouching = Input.GetKey(KeyCode.C) ? true : false;
         roll = Input.GetKeyDown(KeyCode.Space) ? true : false;
-        lightAttack = Input.GetKeyDown(KeyCode.Mouse0);
-        heavyAttack = Input.GetKeyDown(KeyCode.Mouse1);
-        tacticPause = Input.GetKeyDown(KeyCode.Mouse2);
+        if (!EventSystem.current.IsPointerOverGameObject() && !TacticPauseManager.Instance.IsTacticPauseActive)
+        {
+            lightAttack = Input.GetKeyDown(KeyCode.Mouse0);
+            heavyAttack = Input.GetKeyDown(KeyCode.Mouse1);
+        }
     }
 
     private void ProcessStatus()
@@ -130,8 +112,10 @@ public class PlayerController : MonoBehaviour
                 firstIsRunning = false;
         }
 
-        if (tacticPause)
-            IsTacticPauseActive = !IsTacticPauseActive;
+        if (lightAttacking || heavyAttacking)
+        {
+            crouching = false;
+        }
     }
 
 
@@ -163,7 +147,7 @@ public class PlayerController : MonoBehaviour
 
     private void ProcessAttack()
     {
-        if ((lightAttack || heavyAttack) && canAttack)
+        if ((lightAttack || heavyAttack) && canAttack && !crouching)
         {
             if (firstComboAttack)
             {
