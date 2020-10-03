@@ -94,9 +94,9 @@ public class PlayerController : MonoBehaviour
         isGrounded = Physics.CheckSphere(_groundChecker.position, groundCheckerRadius, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore);
         canAttack = !isGrounded || rolling ? false : true;
 
-        if (roll && canRoll && !crouching)
+        if (roll && canRoll && !crouching && !lightAttacking && !heavyAttacking)
         {
-            if (Math.Abs(verticalMov) > 0 || Math.Abs(horizontalMov) > 0)
+            if (moving)
                 StartCoroutine(RollingCoroutine(walkRollTime));
             else
                 StartCoroutine(RollingCoroutine(idleRollTime));
@@ -128,7 +128,7 @@ public class PlayerController : MonoBehaviour
         if (!rolling)
             direction = new Vector3(horizontalMov, 0, verticalMov);
 
-        if (direction != Vector3.zero)
+        if (direction != Vector3.zero && !lightAttacking && !heavyAttacking)
             gameObject.transform.forward = direction;
 
         //Direction on y axe
@@ -164,9 +164,9 @@ public class PlayerController : MonoBehaviour
             playerSpeedProcessed = running ? playerSpeedWhileRunning : playerSpeedProcessed;
             playerSpeedProcessed = crouching ? playerSpeedProcessed / 2 : playerSpeedProcessed;
         }
-        playerSpeedProcessed = (Math.Abs(direction.x) > 0 && Math.Abs(direction.z) > 0) ? playerSpeedProcessed * 0.75f : playerSpeedProcessed;
+        playerSpeedProcessed = (moving) ? playerSpeedProcessed * 0.75f : playerSpeedProcessed;
 
-        if (Math.Abs(verticalMov) > 0 || Math.Abs(horizontalMov) > 0)
+        if (moving)
         {
             if (running)
                 playerSpeedProcessed = rolling ? playerSpeedWhileRunRolling : playerSpeedProcessed;
