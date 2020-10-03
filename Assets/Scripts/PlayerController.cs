@@ -42,7 +42,6 @@ public class PlayerController : MonoBehaviour
     public float walkRollTime = 1f;
     public float rollCooldown = 2f;
 
-    //Attack
     [Header("AttackStats")]
     public float playerSpeedLightAttacking = 1f;
     public float playerSpeedHeavyAttacking = 1f;
@@ -51,11 +50,31 @@ public class PlayerController : MonoBehaviour
     private bool canAttack = true;
     private bool lightAttacking;
     private bool heavyAttacking;
-    private int attackState = 0;
     private int lightAttackCounter = 0;
     private int heavtAttackCounter = 0;
-    private bool checkForLateCombo = false;
     private bool firstComboAttack = true;
+
+    [Header("TacticPause")]
+    private bool tacticPause;
+    private bool _isTacticPauseActive;
+
+    public bool IsTacticPauseActive
+    {
+        get { return _isTacticPauseActive; }
+        set
+        {
+            _isTacticPauseActive = value;
+            if (value)
+            {
+                Time.timeScale = 0.5f;
+            }
+            else
+            {
+                Time.timeScale = 1f;
+            }
+        }
+    }
+
 
     void Start()
     {
@@ -82,11 +101,12 @@ public class PlayerController : MonoBehaviour
         roll = Input.GetKeyDown(KeyCode.Space) ? true : false;
         lightAttack = Input.GetKeyDown(KeyCode.Mouse0);
         heavyAttack = Input.GetKeyDown(KeyCode.Mouse1);
+        tacticPause = Input.GetKeyDown(KeyCode.Mouse2);
     }
 
     private void ProcessStatus()
     {
-        if (Math.Abs(horizontalMov) > 0 || Math.Abs(horizontalMov) > 0)
+        if (Math.Abs(horizontalMov) > 0 || Math.Abs(verticalMov) > 0)
             moving = true;
         else
             moving = false;
@@ -109,24 +129,19 @@ public class PlayerController : MonoBehaviour
             else
                 firstIsRunning = false;
         }
+
+        if (tacticPause)
+            IsTacticPauseActive = !IsTacticPauseActive;
     }
 
-    private void ProcessAnimator()
-    {
-        playerAnimator.SetFloat("HorizontalMov", horizontalMov);
-        playerAnimator.SetFloat("VerticalMov", verticalMov);
-        playerAnimator.SetBool("Moving", moving);
-        playerAnimator.SetBool("Running", running);
-        playerAnimator.SetBool("Crouching", crouching);
-        playerAnimator.SetBool("Rolling", rolling);
-        playerAnimator.SetBool("Falling", !isGrounded);
-    }
 
     private void ProcessMovement()
     {
         //Direction on x-z axes
-        if (!rolling)
-            direction = new Vector3(horizontalMov, 0, verticalMov);
+        direction = new Vector3(horizontalMov, 0, verticalMov);
+
+        if (rolling || lightAttacking || heavyAttacking)
+            direction = gameObject.transform.forward;
 
         if (direction != Vector3.zero && !lightAttacking && !heavyAttacking)
             gameObject.transform.forward = direction;
@@ -140,12 +155,47 @@ public class PlayerController : MonoBehaviour
 
         playerSpeedProcessed = SpeedResolver();
 
-        if (rolling || lightAttacking || heavyAttacking)
-            direction = gameObject.transform.forward;
-
         if (canMove)
             playerCC.Move(direction * Time.deltaTime * playerSpeedProcessed);
+
         playerCC.Move(playerVelocity * Time.deltaTime);
+    }
+
+    private void ProcessAttack()
+    {
+        if ((lightAttack || heavyAttack) && canAttack)
+        {
+            if (firstComboAttack)
+            {
+                if (lightAttack)
+                {
+                    playerAnimator.SetBool("LightAttacking", true);
+                    lightAttacking = true;
+                }
+                else if (heavyAttack)
+                {
+                    playerAnimator.SetBool("HeavyAttacking", true);
+                    heavyAttacking = true;
+                }
+                firstComboAttack = false;
+            }
+
+            if (lightAttack)
+                lightAttackCounter++;
+            else if (heavyAttack)
+                heavtAttackCounter++;
+        }
+    }
+
+    private void ProcessAnimator()
+    {
+        playerAnimator.SetFloat("HorizontalMov", horizontalMov);
+        playerAnimator.SetFloat("VerticalMov", verticalMov);
+        playerAnimator.SetBool("Moving", moving);
+        playerAnimator.SetBool("Running", running);
+        playerAnimator.SetBool("Crouching", crouching);
+        playerAnimator.SetBool("Rolling", rolling);
+        playerAnimator.SetBool("Falling", !isGrounded);
     }
 
     private float SpeedResolver()
@@ -182,32 +232,6 @@ public class PlayerController : MonoBehaviour
         return playerSpeedProcessed;
     }
 
-    private void ProcessAttack()
-    {
-        if ((lightAttack || heavyAttack) && canAttack)
-        {
-            if (firstComboAttack)
-            {
-                if (lightAttack)
-                {
-                    playerAnimator.SetBool("LightAttacking", true);
-                    lightAttacking = true;
-                }
-                else if (heavyAttack)
-                {
-                    playerAnimator.SetBool("HeavyAttacking", true);
-                    heavyAttacking = true;
-                }
-                firstComboAttack = false;
-            }
-
-            if (lightAttack)
-                lightAttackCounter++;
-            else if (heavyAttack)
-                heavtAttackCounter++;
-        }
-    }
-
     IEnumerator RollingCoroutine(float rollTime)
     {
         canRoll = false;
@@ -235,7 +259,10 @@ public class PlayerController : MonoBehaviour
             firstComboAttack = true;
         }
         else
-            lightAttack = true;
+        {
+            lightAttacking = true;
+            playerAnimator.SetBool("LightAttacking", true);
+        }
 
         if (heavtAttackCounter <= 0)
         {
@@ -244,7 +271,11 @@ public class PlayerController : MonoBehaviour
             firstComboAttack = true;
         }
         else
+        {
             heavyAttacking = true;
+            playerAnimator.SetBool("HeavyAttacking", true);
+        }
+
     }
 
     void AttacksResets()

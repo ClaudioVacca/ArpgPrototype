@@ -66,14 +66,14 @@ ModelImporter:
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.27009648
+      - time: 0.05445667
         functionName: ResetAttackCounter
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.779156
+      - time: 0.77204704
         functionName: ManageCombo
         data: 
         objectReferenceParameter: {instanceID: 0}
