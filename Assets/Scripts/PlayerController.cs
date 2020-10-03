@@ -10,7 +10,18 @@ public class PlayerController : MonoBehaviour
     private Vector3 playerVelocity;
     private Vector3 direction;
 
-    private bool groundedPlayer;
+    [Header("Utility")]
+    public Transform _groundChecker;
+    private float groundCheckerRadius = 0.2f;
+    [SerializeField]
+    private float playerSpeedProcessed;
+    [SerializeField]
+    private float gravityValue = -9.81f;
+    [Space(5)]
+
+    private bool isGrounded;
+    private bool canMove = true;
+    private bool moving;
     private bool running;
     private bool crouching;
     private bool firstIsRunning;
@@ -21,27 +32,35 @@ public class PlayerController : MonoBehaviour
     private bool canRoll = true;
     private bool falling;
 
-    [Header("Stats")]
+    [Header("RollStats")]
     public float playerSpeed = 4f;
     public float playerSpeedWhileRunning = 6f;
     public float playerSpeedWhileIdleRolling = 3f;
-    public float playerSpeedWhileRunRolling = 6f;
+    public float playerSpeedWhileWalkRolling = 6f;
+    public float playerSpeedWhileRunRolling = 8f;
     public float idleRollTime = 2f;
-    public float runRollTime = 1f;
+    public float walkRollTime = 1f;
     public float rollCooldown = 2f;
-    [SerializeField]
-    private float playerSpeedProcessed;
-    [SerializeField]
-    private float gravityValue = -9.81f;
 
-
+    //Attack
+    [Header("AttackStats")]
+    public float playerSpeedLightAttacking = 1f;
+    public float playerSpeedHeavyAttacking = 1f;
+    private bool lightAttack;
+    private bool heavyAttack;
+    private bool canAttack = true;
+    private bool lightAttacking;
+    private bool heavyAttacking;
+    private int attackState = 0;
+    private int lightAttackCounter = 0;
+    private int heavtAttackCounter = 0;
+    private bool checkForLateCombo = false;
+    private bool firstComboAttack = true;
 
     void Start()
     {
         playerCC = GetComponent<CharacterController>();
         playerAnimator = GetComponent<Animator>();
-
-
     }
 
     // Update is called once per frame
@@ -49,8 +68,9 @@ public class PlayerController : MonoBehaviour
     {
         ProcessInput();
         ProcessStatus();
-        ProcessAnimator();
         ProcessMovement();
+        ProcessAttack();
+        ProcessAnimator();
     }
 
     private void ProcessInput()
@@ -60,17 +80,24 @@ public class PlayerController : MonoBehaviour
         running = Input.GetKey(KeyCode.LeftShift) ? true : false;
         crouching = Input.GetKey(KeyCode.C) ? true : false;
         roll = Input.GetKeyDown(KeyCode.Space) ? true : false;
+        lightAttack = Input.GetKeyDown(KeyCode.Mouse0);
+        heavyAttack = Input.GetKeyDown(KeyCode.Mouse1);
     }
 
     private void ProcessStatus()
     {
-        groundedPlayer = playerCC.isGrounded;
-        Debug.Log(groundedPlayer);
+        if (Math.Abs(horizontalMov) > 0 || Math.Abs(horizontalMov) > 0)
+            moving = true;
+        else
+            moving = false;
 
-        if (roll && canRoll)
+        isGrounded = Physics.CheckSphere(_groundChecker.position, groundCheckerRadius, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore);
+        canAttack = !isGrounded || rolling ? false : true;
+
+        if (roll && canRoll && !crouching)
         {
             if (Math.Abs(verticalMov) > 0 || Math.Abs(horizontalMov) > 0)
-                StartCoroutine(RollingCoroutine(runRollTime));
+                StartCoroutine(RollingCoroutine(walkRollTime));
             else
                 StartCoroutine(RollingCoroutine(idleRollTime));
         }
@@ -88,10 +115,11 @@ public class PlayerController : MonoBehaviour
     {
         playerAnimator.SetFloat("HorizontalMov", horizontalMov);
         playerAnimator.SetFloat("VerticalMov", verticalMov);
+        playerAnimator.SetBool("Moving", moving);
         playerAnimator.SetBool("Running", running);
         playerAnimator.SetBool("Crouching", crouching);
         playerAnimator.SetBool("Rolling", rolling);
-        playerAnimator.SetBool("Falling", !groundedPlayer);
+        playerAnimator.SetBool("Falling", !isGrounded);
     }
 
     private void ProcessMovement()
@@ -105,12 +133,23 @@ public class PlayerController : MonoBehaviour
 
         //Direction on y axe
         playerVelocity.y += gravityValue * Time.deltaTime;
-        //if (groundedPlayer && playerVelocity.y < 0f)
-        //{
-        //    playerVelocity.y = 0f;
-        //}
+        if (isGrounded && playerVelocity.y < 0f)
+        {
+            playerVelocity.y = 0f;
+        }
 
-        //SpeedResolver
+        playerSpeedProcessed = SpeedResolver();
+
+        if (rolling || lightAttacking || heavyAttacking)
+            direction = gameObject.transform.forward;
+
+        if (canMove)
+            playerCC.Move(direction * Time.deltaTime * playerSpeedProcessed);
+        playerCC.Move(playerVelocity * Time.deltaTime);
+    }
+
+    private float SpeedResolver()
+    {
         playerSpeedProcessed = playerSpeed;
         if (running && crouching)
         {
@@ -128,15 +167,45 @@ public class PlayerController : MonoBehaviour
         playerSpeedProcessed = (Math.Abs(direction.x) > 0 && Math.Abs(direction.z) > 0) ? playerSpeedProcessed * 0.75f : playerSpeedProcessed;
 
         if (Math.Abs(verticalMov) > 0 || Math.Abs(horizontalMov) > 0)
-            playerSpeedProcessed = rolling ? playerSpeedWhileRunRolling : playerSpeedProcessed;
+        {
+            if (running)
+                playerSpeedProcessed = rolling ? playerSpeedWhileRunRolling : playerSpeedProcessed;
+            else
+                playerSpeedProcessed = rolling ? playerSpeedWhileWalkRolling : playerSpeedProcessed;
+        }
         else
             playerSpeedProcessed = rolling ? playerSpeedWhileIdleRolling : playerSpeedProcessed;
 
-        if (rolling)
-            direction = gameObject.transform.forward;
+        if (lightAttacking)
+            playerSpeedProcessed = playerSpeedLightAttacking;
 
-        playerCC.Move(direction * Time.deltaTime * playerSpeedProcessed);
-        playerCC.Move(playerVelocity * Time.deltaTime);
+        return playerSpeedProcessed;
+    }
+
+    private void ProcessAttack()
+    {
+        if ((lightAttack || heavyAttack) && canAttack)
+        {
+            if (firstComboAttack)
+            {
+                if (lightAttack)
+                {
+                    playerAnimator.SetBool("LightAttacking", true);
+                    lightAttacking = true;
+                }
+                else if (heavyAttack)
+                {
+                    playerAnimator.SetBool("HeavyAttacking", true);
+                    heavyAttacking = true;
+                }
+                firstComboAttack = false;
+            }
+
+            if (lightAttack)
+                lightAttackCounter++;
+            else if (heavyAttack)
+                heavtAttackCounter++;
+        }
     }
 
     IEnumerator RollingCoroutine(float rollTime)
@@ -148,4 +217,51 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(rollCooldown - rollTime);
         canRoll = true;
     }
+
+    public void ResetAttackCounter()
+    {
+        lightAttackCounter = 0;
+        heavtAttackCounter = 0;
+        canMove = false;
+        canRoll = false;
+    }
+
+    public void ManageCombo()
+    {
+        if (lightAttackCounter <= 0)
+        {
+            playerAnimator.SetBool("LightAttacking", false);
+            lightAttacking = false;
+            firstComboAttack = true;
+        }
+        else
+            lightAttack = true;
+
+        if (heavtAttackCounter <= 0)
+        {
+            playerAnimator.SetBool("HeavyAttacking", false);
+            heavyAttacking = false;
+            firstComboAttack = true;
+        }
+        else
+            heavyAttacking = true;
+    }
+
+    void AttacksResets()
+    {
+        lightAttacking = false;
+        playerAnimator.SetBool("LightAttacking", false);
+        heavyAttacking = false;
+        playerAnimator.SetBool("HeavyAttacking", false);
+        firstComboAttack = true;
+        canMove = true;
+        canRoll = true;
+    }
+
+    void canMoveAndRollEvent()
+    {
+        canMove = true;
+        canRoll = true;
+    }
+
 }

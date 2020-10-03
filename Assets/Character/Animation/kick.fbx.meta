@@ -1,11 +1,11 @@
 fileFormatVersion: 2
-guid: dd6ab5728da35a940baba53172ff0ba7
+guid: 7377e5e9cf130d34caf25464632ed9f2
 ModelImporter:
   serializedVersion: 19300
   internalIDToNameTable:
   - first:
       74: -203655887218126122
-    second: straightPunch
+    second: kick
   externalObjects: {}
   materials:
     materialImportMode: 1
@@ -35,7 +35,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: straightPunch
+      name: kick
       takeName: mixamo.com
       internalID: 0
       firstFrame: 0
@@ -59,14 +59,14 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.32065195
+      - time: 0.07713994
         functionName: ResetAttackCounter
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.75762326
+      - time: 0.6874095
         functionName: ManageCombo
         data: 
         objectReferenceParameter: {instanceID: 0}

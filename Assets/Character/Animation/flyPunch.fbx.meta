@@ -1,11 +1,11 @@
 fileFormatVersion: 2
-guid: dd6ab5728da35a940baba53172ff0ba7
+guid: fef30cfb585badf449b962ac65088b5a
 ModelImporter:
   serializedVersion: 19300
   internalIDToNameTable:
   - first:
       74: -203655887218126122
-    second: straightPunch
+    second: flyPunch
   externalObjects: {}
   materials:
     materialImportMode: 1
@@ -35,11 +35,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: straightPunch
+      name: flyPunch
       takeName: mixamo.com
       internalID: 0
       firstFrame: 0
-      lastFrame: 56
+      lastFrame: 54
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -59,22 +59,15 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.32065195
+      - time: 0.3972204
         functionName: ResetAttackCounter
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.75762326
+      - time: 0.81188947
         functionName: ManageCombo
-        data: 
-        objectReferenceParameter: {instanceID: 0}
-        floatParameter: 0
-        intParameter: 0
-        messageOptions: 0
-      - time: 0
-        functionName: canMoveAndRollEvent
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
