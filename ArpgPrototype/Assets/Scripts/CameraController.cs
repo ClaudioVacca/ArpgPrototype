@@ -6,6 +6,7 @@ public class CameraController : MonoBehaviour
 {
     public GameObject player;
     private Vector3 offsetFromPLayer;
+    public float speed = 2;
 
 
     // Start is called before the first frame update
@@ -17,6 +18,6 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = player.transform.position - offsetFromPLayer;
+        transform.position = Vector3.Lerp(transform.position, player.transform.position - offsetFromPLayer, speed * Time.deltaTime);
     }
 }
