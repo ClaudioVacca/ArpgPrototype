@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Rewired;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,12 +11,15 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        player = ReInput.players.GetPlayer(0);
+
         if (Instance == null)
             Instance = this;
         else
             Destroy(this.gameObject);
     }
 
+    Player player;
     private CharacterController playerCC;
     private Animator playerAnimator;
     private Vector3 playerVelocity;
@@ -89,16 +93,34 @@ public class PlayerController : MonoBehaviour
 
     private void ProcessInput()
     {
-        horizontalMov = Input.GetAxis("Horizontal");
-        verticalMov = Input.GetAxis("Vertical");
-        running = Input.GetKey(KeyCode.LeftShift) ? true : false;
-        crouching = Input.GetKey(KeyCode.C) ? true : false;
-        roll = Input.GetKeyDown(KeyCode.Space) ? true : false;
+        //horizontalMov = Input.GetAxis("Horizontal");
+        //verticalMov = Input.GetAxis("Vertical");
+        //running = Input.GetKey(KeyCode.LeftShift) ? true : false;
+        //crouching = Input.GetKey(KeyCode.C) ? true : false;
+        //roll = Input.GetKeyDown(KeyCode.Space) ? true : false;
+        //if (!EventSystem.current.IsPointerOverGameObject() && !TacticPauseManager.Instance.IsTacticPauseActive)
+        //{
+        //    lightAttack = Input.GetKeyDown(KeyCode.Mouse0);
+        //    heavyAttack = Input.GetKeyDown(KeyCode.Mouse1);
+        //}
+
+        horizontalMov = player.GetAxis("HorizontalMov");
+        verticalMov = player.GetAxis("VerticalMov");
+        running = player.GetButton("Run") ? true : false;
+        crouching = player.GetButton("Crouch") ? true : false;
+        roll = player.GetButtonDown("Roll") ? true : false;
+
         if (!EventSystem.current.IsPointerOverGameObject() && !TacticPauseManager.Instance.IsTacticPauseActive)
         {
-            lightAttack = Input.GetKeyDown(KeyCode.Mouse0);
-            heavyAttack = Input.GetKeyDown(KeyCode.Mouse1);
+            lightAttack = player.GetButtonDown("LightAttack");
+            heavyAttack = player.GetButtonDown("HeavyAttack");
         }
+
+        TacticPauseManager.Instance.tacticPause = player.GetButtonDown("TacticPause");
+        if (TacticPauseManager.Instance.tacticPause)
+            TacticPauseManager.Instance.IsTacticPauseActive = !TacticPauseManager.Instance.IsTacticPauseActive;
+
+
     }
 
     private void ProcessStatus()
@@ -150,7 +172,7 @@ public class PlayerController : MonoBehaviour
         if (rolling || lightAttacking || heavyAttacking)
             direction = gameObject.transform.forward;
 
-        if (direction != Vector3.zero && !lightAttacking && !heavyAttacking)
+        if (direction != Vector3.zero && !lightAttacking && !heavyAttacking && !TacticPauseManager.Instance.IsTacticPauseActive)
             gameObject.transform.forward = direction;
 
         //Direction on y axe
@@ -239,7 +261,7 @@ public class PlayerController : MonoBehaviour
         if (heavyAttacking)
             playerSpeedProcessed = playerSpeedHeavyAttacking;
 
-        if (doingHurricane) 
+        if (doingHurricane)
             playerSpeedProcessed = playerSpeedDoingHurricane;
 
         return playerSpeedProcessed;

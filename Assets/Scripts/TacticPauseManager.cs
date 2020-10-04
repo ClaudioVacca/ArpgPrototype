@@ -8,7 +8,7 @@ public class TacticPauseManager : MonoBehaviour
     public static TacticPauseManager Instance;
     private Queue<Ability> abilitiesQueue = new Queue<Ability>();
 
-    private bool tacticPause;
+    public bool tacticPause;
     private bool _isTacticPauseActive;
 
     public bool IsTacticPauseActive
@@ -47,9 +47,6 @@ public class TacticPauseManager : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
-        tacticPause = Input.GetKeyDown(KeyCode.Mouse2);
-        if (tacticPause)
-            IsTacticPauseActive = !IsTacticPauseActive;
     }
 
     internal void HurricaneAbilityUsed()
