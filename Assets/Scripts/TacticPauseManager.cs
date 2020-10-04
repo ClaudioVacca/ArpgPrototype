@@ -1,10 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class TacticPauseManager : MonoBehaviour
 {
     public static TacticPauseManager Instance;
+    private Queue<Ability> abilitiesQueue = new Queue<Ability>();
 
     private bool tacticPause;
     private bool _isTacticPauseActive;
@@ -28,7 +30,6 @@ public class TacticPauseManager : MonoBehaviour
         }
     }
 
-
     private void Awake()
     {
         if (Instance == null)
@@ -49,5 +50,24 @@ public class TacticPauseManager : MonoBehaviour
         tacticPause = Input.GetKeyDown(KeyCode.Mouse2);
         if (tacticPause)
             IsTacticPauseActive = !IsTacticPauseActive;
+    }
+
+    internal void HurricaneAbilityUsed()
+    {
+        EnqueueAbility(1, "Hurricane");
+    }
+
+    void EnqueueAbility(int id, string name)
+    {
+        abilitiesQueue.Enqueue(new Ability(id, name));
+    }
+
+    public void DequeueAbility()
+    {
+        if (abilitiesQueue.Count == 0)
+            return;
+
+        Ability ability = abilitiesQueue.Dequeue();
+        ability.Execute();
     }
 }

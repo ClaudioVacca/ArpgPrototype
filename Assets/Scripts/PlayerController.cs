@@ -6,6 +6,16 @@ using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance;
+
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(this.gameObject);
+    }
+
     private CharacterController playerCC;
     private Animator playerAnimator;
     private Vector3 playerVelocity;
@@ -18,7 +28,7 @@ public class PlayerController : MonoBehaviour
     private float playerSpeedProcessed;
     [SerializeField]
     private float gravityValue = -9.81f;
-    [Space(5)]
+    private bool onTacticPauseAbilityExecution;
 
     private bool isGrounded;
     private bool canMove = true;
@@ -55,6 +65,10 @@ public class PlayerController : MonoBehaviour
     private int heavtAttackCounter = 0;
     private bool firstComboAttack = true;
 
+    [Header("AnilitiesStats")]
+    private bool doingHurricane;
+    public float HurricaneTime;
+    public float playerSpeedDoingHurricane = 15f;
 
     void Start()
     {
@@ -67,6 +81,7 @@ public class PlayerController : MonoBehaviour
     {
         ProcessInput();
         ProcessStatus();
+        ProcessTacticPauseQueue();
         ProcessMovement();
         ProcessAttack();
         ProcessAnimator();
@@ -115,6 +130,14 @@ public class PlayerController : MonoBehaviour
         if (lightAttacking || heavyAttacking)
         {
             crouching = false;
+        }
+    }
+
+    void ProcessTacticPauseQueue()
+    {
+        if (!rolling && !falling && !onTacticPauseAbilityExecution && !lightAttacking && !heavyAttacking)
+        {
+            TacticPauseManager.Instance.DequeueAbility();
         }
     }
 
@@ -198,7 +221,8 @@ public class PlayerController : MonoBehaviour
             playerSpeedProcessed = running ? playerSpeedWhileRunning : playerSpeedProcessed;
             playerSpeedProcessed = crouching ? playerSpeedProcessed / 2 : playerSpeedProcessed;
         }
-        playerSpeedProcessed = (moving) ? playerSpeedProcessed * 0.75f : playerSpeedProcessed;
+
+        playerSpeedProcessed = Math.Abs(horizontalMov) > 0 && Math.Abs(verticalMov) > 0 ? playerSpeedProcessed * 0.75f : playerSpeedProcessed;
 
         if (moving)
         {
@@ -212,6 +236,11 @@ public class PlayerController : MonoBehaviour
 
         if (lightAttacking)
             playerSpeedProcessed = playerSpeedLightAttacking;
+        if (heavyAttacking)
+            playerSpeedProcessed = playerSpeedHeavyAttacking;
+
+        if (doingHurricane) 
+            playerSpeedProcessed = playerSpeedDoingHurricane;
 
         return playerSpeedProcessed;
     }
@@ -279,4 +308,24 @@ public class PlayerController : MonoBehaviour
         canRoll = true;
     }
 
+    public void HurricanAbilityUsed()
+    {
+        StartCoroutine(HurricaneCoroutine());
+    }
+
+    private IEnumerator HurricaneCoroutine()
+    {
+        onTacticPauseAbilityExecution = true;
+        doingHurricane = true;
+        canRoll = false;
+        canAttack = false;
+        AttacksResets();
+        playerAnimator.SetBool("Hurricane", true);
+        yield return new WaitForSeconds(HurricaneTime);
+        canRoll = true;
+        canAttack = true;
+        playerAnimator.SetBool("Hurricane", false);
+        doingHurricane = false;
+        onTacticPauseAbilityExecution = false;
+    }
 }

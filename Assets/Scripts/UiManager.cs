@@ -39,6 +39,7 @@ public class UiManager : MonoBehaviour
     public void CloseTacticPauseMenu()
     {
         PanelTacticPause.SetActive(false);
+        PanelTacticPauseAbilities.SetActive(false);
     }
 
     public void OpenTacticPauseMenuAbilities()
@@ -54,6 +55,12 @@ public class UiManager : MonoBehaviour
     public void OnTacticPauseMenuAbilitiesClick()
     {
         OpenTacticPauseMenuAbilities();
+    }
+
+    public void OnTacticPauseMenuAbilitiesHurricaneClick()
+    {
+        TacticPauseManager.Instance.IsTacticPauseActive = false;
+        TacticPauseManager.Instance.HurricaneAbilityUsed();
     }
 
     public void OnTacticPauseMenuAbilitiesBackClick()
