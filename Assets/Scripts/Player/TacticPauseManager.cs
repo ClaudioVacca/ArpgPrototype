@@ -6,7 +6,7 @@ using UnityEngine;
 public class TacticPauseManager : MonoBehaviour
 {
     public static TacticPauseManager Instance;
-    private Queue<Ability> abilitiesQueue = new Queue<Ability>();
+    //private Queue<Ability> abilitiesQueue = new Queue<Ability>();
 
     public bool tacticPause;
     private bool _isTacticPauseActive;
@@ -51,20 +51,20 @@ public class TacticPauseManager : MonoBehaviour
 
     internal void HurricaneAbilityUsed()
     {
-        EnqueueAbility(1, "Hurricane");
+        //EnqueueAbility(1, "Hurricane");
     }
 
-    void EnqueueAbility(int id, string name)
-    {
-        abilitiesQueue.Enqueue(new Ability(id, name));
-    }
+    //void EnqueueAbility(int id, string name)
+    //{
+    //    abilitiesQueue.Enqueue(new Ability(id, name));
+    //}
 
-    public void DequeueAbility()
-    {
-        if (abilitiesQueue.Count == 0)
-            return;
+    //public void DequeueAbility()
+    //{
+    //    if (abilitiesQueue.Count == 0)
+    //        return;
 
-        Ability ability = abilitiesQueue.Dequeue();
-        ability.Execute();
-    }
+    //    Ability ability = abilitiesQueue.Dequeue();
+    //    ability.Execute();
+    //}
 }
