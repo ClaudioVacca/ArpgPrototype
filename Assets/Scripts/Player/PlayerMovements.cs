@@ -7,16 +7,18 @@ public class PlayerMovements : IPlayerMovements
     private readonly IPlayerInput playerInput;
     private readonly IPlayerGroundChecker playerGroundChecker;
     private readonly IPlayerRoll playerRoll;
+    private readonly IPlayerAttacksProcessor playerAttacksProcessor;
     private readonly CharacterController cc;
     private readonly PlayerStats playerStats;
     private readonly Transform playerTransform;
-    private Vector3 playerVelocity;
+    private Vector3 DirectionOnY;
     private float playerSpeedProcessed;
     float gravityValue = -9.81f;
 
-    public Vector3 Direction { get; set; }
+    public Vector3 DirectionOnXZ { get; set; }
 
     private bool _isMoving;
+    private bool _canMove;
     private bool _canRun;
     private bool _canCrouch;
     private bool _canTurn = true;
@@ -31,7 +33,16 @@ public class PlayerMovements : IPlayerMovements
         set { _isMoving = value; }
     }
 
-    public bool CanMove { get; set; } = true;
+    public bool CanMove {
+        get
+        {
+            return _canMove;
+        }
+        set
+        {
+            _canMove = value;
+        }
+    }
 
     public bool CanTurn { get; set; } = true;
 
@@ -43,12 +54,20 @@ public class PlayerMovements : IPlayerMovements
 
     public bool IsCrouching { get; set; }
 
-    public PlayerMovements(Transform playerTransform, IPlayerInput playerInput, IPlayerGroundChecker playerGroundChecker, IPlayerRoll playerRoll, CharacterController cc, PlayerStats playerStats)
+    public PlayerMovements(
+        Transform playerTransform, 
+        IPlayerInput playerInput, 
+        IPlayerGroundChecker playerGroundChecker, 
+        IPlayerRoll playerRoll,
+        IPlayerAttacksProcessor playerAttacksProcessor, 
+        CharacterController cc, 
+        PlayerStats playerStats)
     {
         this.playerTransform = playerTransform;
         this.playerInput = playerInput;
         this.playerGroundChecker = playerGroundChecker;
         this.playerRoll = playerRoll;
+        this.playerAttacksProcessor = playerAttacksProcessor;
         this.cc = cc;
         this.playerStats = playerStats;
         playerStats.CurrentSpeed = playerStats.InitialSpeed;
@@ -57,27 +76,29 @@ public class PlayerMovements : IPlayerMovements
     public void ProcessMovements()
     {
         //Direction on x-z axes
-        Direction = new Vector3(playerInput.HorizontalMov, 0, playerInput.VerticalMov);
+        DirectionOnXZ = new Vector3(playerInput.HorizontalMov, 0, playerInput.VerticalMov);
 
-        if (Direction != Vector3.zero && CanTurn /*&& !playerStatus.IsLightAttacking && !playerStatus.IsHeavyAttacking && !TacticPauseManager.Instance.IsTacticPauseActive*/)
-            playerTransform.forward = Direction;
+        if (DirectionOnXZ != Vector3.zero && CanTurn && !playerAttacksProcessor.IsLightAttacking && !playerAttacksProcessor.IsHeavyAttacking && !TacticPauseManager.Instance.IsTacticPauseActive)
+            playerTransform.forward = DirectionOnXZ;
 
-        if (!CanTurn /*|| playerStatus.IsLightAttacking || playerStatus.IsHeavyAttacking*/)
-            Direction = playerTransform.forward;
+        if (!CanTurn || playerAttacksProcessor.IsLightAttacking || playerAttacksProcessor.IsHeavyAttacking)
+            DirectionOnXZ = playerTransform.forward;
 
         //Direction on y axe
-        playerVelocity.y += gravityValue * Time.deltaTime;
+        DirectionOnY.y += gravityValue * Time.deltaTime;
 
-        if (playerGroundChecker.IsGrounded() && playerVelocity.y < 0f)
+        if (playerGroundChecker.IsGrounded() && DirectionOnY.y < 0f)
         {
-            playerVelocity.y = 0f;
+            DirectionOnY.y = 0f;
         }
 
-        playerSpeedProcessed = playerSpeedResolver.SpeedResolver(playerStats, playerInput, this, playerRoll);
+        //Speed retrieving
+        playerSpeedProcessed = playerSpeedResolver.SpeedResolver(playerStats, playerInput, this, playerRoll, playerAttacksProcessor);
 
+        //Movements
         if (CanMove)
-            cc.Move(Direction.normalized * Time.deltaTime * playerStats.CurrentSpeed);
+            cc.Move(DirectionOnXZ.normalized * Time.deltaTime * playerStats.CurrentSpeed);
 
-        cc.Move(playerVelocity * Time.deltaTime);
+        cc.Move(DirectionOnY * Time.deltaTime);
     }
 }

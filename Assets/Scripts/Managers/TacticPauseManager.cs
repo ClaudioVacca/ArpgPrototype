@@ -6,9 +6,10 @@ using UnityEngine;
 public class TacticPauseManager : MonoBehaviour
 {
     public static TacticPauseManager Instance;
-    //private Queue<Ability> abilitiesQueue = new Queue<Ability>();
+    PlayerController playerController;
+    PlayerAbilityProcessor playerAbilityProcessor;
 
-    public bool tacticPause;
+    public bool tacticPauseInput;
     private bool _isTacticPauseActive;
 
     public bool IsTacticPauseActive
@@ -36,35 +37,22 @@ public class TacticPauseManager : MonoBehaviour
             Instance = this;
         else
             Destroy(this.gameObject);
+
+        playerController = FindObjectOfType<PlayerController>();
+        playerAbilityProcessor = FindObjectOfType<PlayerAbilityProcessor>();
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void Update()
     {
-
+        if (playerController.playerInput.TacticPauseInput)
+            IsTacticPauseActive = !IsTacticPauseActive;
     }
 
-    // Update is called once per frame
-    void LateUpdate()
-    {
-    }
 
     internal void HurricaneAbilityUsed()
     {
-        //EnqueueAbility(1, "Hurricane");
+        playerAbilityProcessor.EnqueueAbility(AbilityType.Hurricane);
     }
 
-    //void EnqueueAbility(int id, string name)
-    //{
-    //    abilitiesQueue.Enqueue(new Ability(id, name));
-    //}
-
-    //public void DequeueAbility()
-    //{
-    //    if (abilitiesQueue.Count == 0)
-    //        return;
-
-    //    Ability ability = abilitiesQueue.Dequeue();
-    //    ability.Execute();
-    //}
+    
 }

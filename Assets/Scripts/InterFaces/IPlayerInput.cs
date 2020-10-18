@@ -7,6 +7,7 @@
     bool RollInput { get; }
     bool LightAttackInput { get; }
     bool HeavyAttackInput { get; }
+    bool TacticPauseInput { get; }
 
     void ProcessInput();
 }

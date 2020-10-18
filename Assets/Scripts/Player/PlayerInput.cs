@@ -12,6 +12,8 @@ public class PlayerInput : IPlayerInput
     public bool RollInput { get; private set; }
     public bool LightAttackInput { get; private set; }
     public bool HeavyAttackInput { get; private set; }
+    public bool TacticPauseInput { get; private set; }
+
 
     public PlayerInput()
     {
@@ -32,9 +34,6 @@ public class PlayerInput : IPlayerInput
             HeavyAttackInput = player.GetButtonDown("HeavyAttack");
         }
 
-        TacticPauseManager.Instance.tacticPause = player.GetButtonDown("TacticPause");
-
-        //if (TacticPauseManager.Instance.tacticPause)
-        //    TacticPauseManager.Instance.IsTacticPauseActive = !TacticPauseManager.Instance.IsTacticPauseActive;
+        TacticPauseInput = player.GetButtonDown("TacticPause");
     }
 }

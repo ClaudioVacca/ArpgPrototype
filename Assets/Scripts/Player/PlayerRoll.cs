@@ -19,22 +19,20 @@ public class PlayerRoll : MonoBehaviour, IPlayerRoll
     {
         get
         {
-            return !playerController.playerInput.CrouchInput && !IsRolling && !IsRollInCooldown /*&& !isLightAttacking && !isHeavyAttacking */;
+            return !playerController.playerInput.CrouchInput &&
+                !IsRolling &&
+                !IsRollInCooldown &&
+                !playerController.playerAttacksProcessor.IsLightAttacking &&
+                !playerController.playerAttacksProcessor.IsHeavyAttacking &&
+                !TacticPauseManager.Instance.IsTacticPauseActive && 
+                !PlayerAbilityProcessor.Instance.IsExecutingAbility;
         }
         set { _canRoll = value; }
     }
 
-    public bool IsRolling
-    {
-        get;
-        set;
-    }
+    public bool IsRolling { get; set; }
 
-    public bool IsRollInCooldown
-    {
-        get;
-        set;
-    }
+    public bool IsRollInCooldown { get; set; }
 
     void Awake()
     {

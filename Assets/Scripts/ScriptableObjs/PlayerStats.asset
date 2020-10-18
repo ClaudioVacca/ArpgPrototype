@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 435776f056adc9e40a14b8334d8abbaa, type: 3}
   m_Name: PlayerStats
   m_EditorClassIdentifier: 
-  initialSpeed: 4
-  currentSpeed: 4
-  playerSpeedWhileRunning: 6
+  initialSpeed: 5
+  currentSpeed: 5
+  playerSpeedWhileRunning: 8
   playerSpeedWhileIdleRolling: 4
   playerSpeedWhileWalkRolling: 6
-  playerSpeedWhileRunRolling: 8
+  playerSpeedWhileRunRolling: 9
+  playerSpeedLightAttacking: 1
+  playerSpeedHeavyAttacking: 1

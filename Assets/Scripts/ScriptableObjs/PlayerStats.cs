@@ -20,4 +20,13 @@ public class PlayerStats : ScriptableObject
 
     [SerializeField] private float playerSpeedWhileRunRolling = 8f;
     public float PlayerSpeedWhileRunRolling { get { return playerSpeedWhileRunRolling; } }
+
+    [SerializeField] private float playerSpeedLightAttacking = 1f;
+    public float PlayerSpeedLightAttacking { get { return playerSpeedLightAttacking; } }
+
+    [SerializeField] private float playerSpeedHeavyAttacking = 1f;
+    public float PlayerSpeedHeavyAttacking { get { return playerSpeedHeavyAttacking; } }
+
+    [SerializeField] private float playerSpeedDoingHurricane = 15f;
+    public float PlayerSpeedDoingHurricane { get { return playerSpeedDoingHurricane; } }
 }

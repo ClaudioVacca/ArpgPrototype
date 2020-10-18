@@ -7,7 +7,12 @@ public class PlayerSpeedResolver : IPlayerSpeedResolver
 {
     public float playerSpeedProcessed { get; private set; }
 
-    public float SpeedResolver(PlayerStats playerStats, IPlayerInput playerInput, IPlayerMovements playerMovements, IPlayerRoll playerRoll)
+    public float SpeedResolver(
+        PlayerStats playerStats, 
+        IPlayerInput playerInput, 
+        IPlayerMovements playerMovements, 
+        IPlayerRoll playerRoll, 
+        IPlayerAttacksProcessor playerAttackPRocessor)
     {
         playerSpeedProcessed = playerStats.InitialSpeed;
         playerSpeedProcessed = playerInput.RunInput && playerMovements.CanRun ? playerStats.PlayerSpeedWhileRunning : playerSpeedProcessed;
@@ -23,10 +28,13 @@ public class PlayerSpeedResolver : IPlayerSpeedResolver
         else
             playerSpeedProcessed = playerRoll.IsRolling ? playerStats.PlayerSpeedWhileIdleRolling : playerSpeedProcessed;
 
-        //if (playerStatus.IsLightAttacking)
-        //    playerSpeedProcessed = playerSpeedLightAttacking;
-        //if (playerStatus.IsHeavyAttacking)
-        //    playerSpeedProcessed = playerSpeedHeavyAttacking;
+        if (playerAttackPRocessor.IsLightAttacking)
+            playerSpeedProcessed = playerStats.PlayerSpeedLightAttacking;
+        if (playerAttackPRocessor.IsHeavyAttacking)
+            playerSpeedProcessed = playerStats.PlayerSpeedHeavyAttacking;
+
+        if(PlayerAbilityProcessor.Instance.IsExecutingAbility && PlayerAbilityProcessor.Instance.AbilityBeingExecuted.PlayerSpeedWhileUsingAbility != null)
+            playerSpeedProcessed = (float) PlayerAbilityProcessor.Instance.AbilityBeingExecuted.PlayerSpeedWhileUsingAbility;
 
         //if (doingHurricane)
         //    playerSpeedProcessed = playerSpeedDoingHurricane;
