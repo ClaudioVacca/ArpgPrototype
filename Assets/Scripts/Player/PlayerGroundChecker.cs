@@ -4,13 +4,13 @@ using UnityEngine;
 public class PlayerGroundChecker : MonoBehaviour, IPlayerGroundChecker
 {
     [SerializeField] private Transform groundChecker;
-    [SerializeField] private float groundCheckerRadius = 0.2f;
+    [SerializeField] private Vector3 groundCheckerBoxSize = new Vector3(0.25f, 0.02f, 0.25f);
 
     public bool IsGrounded()
     {
         if (groundChecker == null)
             throw new System.Exception("GroundChecker needs a transform!");
 
-        return Physics.CheckSphere(groundChecker.position, groundCheckerRadius, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore);
+        return Physics.CheckBox(groundChecker.position, groundCheckerBoxSize, Quaternion.identity, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore);
     }
 }
