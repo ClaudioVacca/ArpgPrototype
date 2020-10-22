@@ -52,8 +52,9 @@ public class PlayerRoll : MonoBehaviour, IPlayerRoll
 
     IEnumerator RollingCoroutine(float rollTime)
     {
-        IsRollInCooldown = true;
         IsRolling = true;
+        playerController.playerMovements.CanMove = true;
+        IsRollInCooldown = true;
         yield return new WaitForSeconds(rollTime);
         IsRolling = false;
         yield return new WaitForSeconds(rollCooldown - rollTime);

@@ -15,29 +15,28 @@ public class PlayerSpeedResolver : IPlayerSpeedResolver
         IPlayerAttacksProcessor playerAttackPRocessor)
     {
         playerSpeedProcessed = playerStats.InitialSpeed;
-        playerSpeedProcessed = playerInput.RunInput && playerMovements.CanRun ? playerStats.PlayerSpeedWhileRunning : playerSpeedProcessed;
-        playerSpeedProcessed = playerInput.CrouchInput && playerMovements.CanCrouch ? playerSpeedProcessed / 2 : playerSpeedProcessed;
 
-        if (playerMovements.IsMoving)
-        {
-            if (playerInput.RunInput)
-                playerSpeedProcessed = playerRoll.IsRolling ? playerStats.PlayerSpeedWhileRunRolling : playerSpeedProcessed;
-            else
-                playerSpeedProcessed = playerRoll.IsRolling ? playerStats.PlayerSpeedWhileWalkRolling : playerSpeedProcessed;
-        }
-        else
-            playerSpeedProcessed = playerRoll.IsRolling ? playerStats.PlayerSpeedWhileIdleRolling : playerSpeedProcessed;
+        playerSpeedProcessed = playerMovements.IsRunning && playerMovements.CanRun ? playerStats.PlayerSpeedWhileRunning : playerSpeedProcessed;
+        playerSpeedProcessed = playerMovements.IsCrouching && playerMovements.CanCrouch ? playerSpeedProcessed / 2 : playerSpeedProcessed;
 
         if (playerAttackPRocessor.IsLightAttacking)
             playerSpeedProcessed = playerStats.PlayerSpeedLightAttacking;
         if (playerAttackPRocessor.IsHeavyAttacking)
             playerSpeedProcessed = playerStats.PlayerSpeedHeavyAttacking;
 
-        if(PlayerAbilityProcessor.Instance.IsExecutingAbility && PlayerAbilityProcessor.Instance.AbilityBeingExecuted.PlayerSpeedWhileUsingAbility != null)
-            playerSpeedProcessed = (float) PlayerAbilityProcessor.Instance.AbilityBeingExecuted.PlayerSpeedWhileUsingAbility;
+        if (playerRoll.IsRolling)
+        {
+            if (playerMovements.IsMoving)
+            {
+                if (playerMovements.IsRunning)
+                    playerSpeedProcessed = playerStats.PlayerSpeedWhileRunRolling;
+                else
+                    playerSpeedProcessed = playerStats.PlayerSpeedWhileWalkRolling;
+            }
+        }
 
-        //if (doingHurricane)
-        //    playerSpeedProcessed = playerSpeedDoingHurricane;
+        if (PlayerAbilityProcessor.Instance.IsExecutingAbility && PlayerAbilityProcessor.Instance.AbilityBeingExecuted.PlayerSpeedWhileUsingAbility != null)
+            playerSpeedProcessed = (float) PlayerAbilityProcessor.Instance.AbilityBeingExecuted.PlayerSpeedWhileUsingAbility;
 
         playerStats.CurrentSpeed = playerSpeedProcessed;
         return playerSpeedProcessed;

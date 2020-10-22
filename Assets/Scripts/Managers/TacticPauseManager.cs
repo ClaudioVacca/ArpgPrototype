@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TacticPauseManager : MonoBehaviour
 {
@@ -49,7 +46,7 @@ public class TacticPauseManager : MonoBehaviour
     }
 
 
-    internal void HurricaneAbilityUsed()
+    internal void HurricaneAbilitySelected()
     {
         playerAbilityProcessor.EnqueueAbility(AbilityType.Hurricane);
     }

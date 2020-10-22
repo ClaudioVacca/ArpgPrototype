@@ -38,7 +38,6 @@ public class UiManager : MonoBehaviour
             Destroy(this.gameObject);
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         es = GameObject.Find("EventSystem").GetComponent<EventSystem>();
@@ -47,7 +46,6 @@ public class UiManager : MonoBehaviour
         currentTacticMenuButtonSelected = 0;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (isPanelTacticMenuOpen && !isPanelAbilitiesOpen)
@@ -139,7 +137,7 @@ public class UiManager : MonoBehaviour
     public void OnTacticPauseMenuAbilitiesHurricaneClick()
     {
         TacticPauseManager.Instance.IsTacticPauseActive = false;
-        TacticPauseManager.Instance.HurricaneAbilityUsed();
+        TacticPauseManager.Instance.HurricaneAbilitySelected();
     }
 
     public void OnTacticPauseMenuAbilitiesBackClick()

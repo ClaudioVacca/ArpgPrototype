@@ -20,3 +20,4 @@ MonoBehaviour:
   playerSpeedWhileRunRolling: 9
   playerSpeedLightAttacking: 1
   playerSpeedHeavyAttacking: 1
+  playerSpeedDoingHurricane: 15

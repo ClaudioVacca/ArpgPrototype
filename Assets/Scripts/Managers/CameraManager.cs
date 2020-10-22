@@ -8,15 +8,12 @@ public class CameraManager : MonoBehaviour
     private Vector3 offsetFromPLayer;
     public float speed = 2;
 
-
-    // Start is called before the first frame update
     void Start()
     {
         offsetFromPLayer = player.transform.position - transform.position;
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         transform.position = Vector3.Lerp(transform.position, player.transform.position - offsetFromPLayer, speed * Time.deltaTime);
     }

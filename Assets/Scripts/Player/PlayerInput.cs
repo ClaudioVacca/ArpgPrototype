@@ -14,7 +14,6 @@ public class PlayerInput : IPlayerInput
     public bool HeavyAttackInput { get; private set; }
     public bool TacticPauseInput { get; private set; }
 
-
     public PlayerInput()
     {
         player = ReInput.players.GetPlayer(0);

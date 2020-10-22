@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class HurricaneAbility : Ability
 {
-    public float HurricaneTime = 6f;
+    public float HurricaneTime = 4.5f;
 
-    public override float? PlayerSpeedWhileUsingAbility { get; } = 15f;
+    public override float? PlayerSpeedWhileUsingAbility { get; } = 10f;
 
     public override AbilityType AbilityType => AbilityType.Hurricane;
 

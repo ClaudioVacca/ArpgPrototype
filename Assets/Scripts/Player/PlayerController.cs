@@ -47,52 +47,14 @@ public class PlayerController : MonoBehaviour
     {
         playerInput.ProcessInput();
         playerStatusResolver.ProcessStatusResolver();
-        playerMovements.ProcessMovements();
-        playerAnimatorProcessor.ProcessAnimator();
+        PlayerAbilityProcessor.Instance.ProcessAbilities();
         playerRoll.ProcessRoll();
         playerAttacksProcessor.ProocessAttacks();
-        ProcessAbilities();
-
-        //ProcessTacticPauseQueue();
+        playerAnimatorProcessor.ProcessAnimator();
     }
 
-    private void ProcessAbilities()
+    private void FixedUpdate()
     {
-        if (playerGroundChecker.IsGrounded() &&
-            !playerRoll.IsRolling &&
-            !playerAttacksProcessor.IsLightAttacking &&
-            !playerAttacksProcessor.IsHeavyAttacking &&
-            !PlayerAbilityProcessor.Instance.IsExecutingAbility
-            )
-            PlayerAbilityProcessor.Instance.DequeueAndUseAbility();
+        playerMovements.ProcessMovements();
     }
-
-    //void ProcessTacticPauseQueue()
-    //{
-    //    if (!playerStatus.IsRolling && !playerStatus.IsFalling && !onTacticPauseAbilityExecution && !playerStatus.IsLightAttacking && !playerStatus.IsHeavyAttacking)
-    //    {
-    //        TacticPauseManager.Instance.DequeueAbility();
-    //    }
-    //}
-
-    //public void HurricanAbilityUsed()
-    //{
-    //    StartCoroutine(HurricaneCoroutine());
-    //}
-
-    //private IEnumerator HurricaneCoroutine()
-    //{
-    //    onTacticPauseAbilityExecution = true;
-    //    doingHurricane = true;
-    //    canRoll = false;
-    //    canAttack = false;
-    //    AttacksResets();
-    //    playerAnimator.SetBool("Hurricane", true);
-    //    yield return new WaitForSeconds(HurricaneTime);
-    //    canRoll = true;
-    //    canAttack = true;
-    //    playerAnimator.SetBool("Hurricane", false);
-    //    doingHurricane = false;
-    //    onTacticPauseAbilityExecution = false;
-    //}
 }
